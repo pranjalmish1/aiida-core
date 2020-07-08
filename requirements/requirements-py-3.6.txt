@@ -28,6 +28,7 @@ cycler==0.10.0
 dataclasses==0.7
 decorator==4.4.2
 defusedxml==0.6.0
+disk-objectstore~=0.5
 Django==2.2.11
 docutils==0.15.2
 entrypoints==0.3
