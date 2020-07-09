@@ -10,6 +10,7 @@
 # pylint: disable=too-many-lines,too-many-arguments
 """Package for node ORM classes."""
 import importlib
+import typing
 import warnings
 import traceback
 
@@ -314,6 +315,22 @@ class Node(Entity, EntityAttributesMixin, EntityExtrasMixin, metaclass=AbstractN
         :param value: the new value to set
         """
         self.backend_entity.description = value
+
+    @property
+    def repository_metadata(self) -> typing.Dict:
+        """Return the node repository metadata.
+
+        :return: the repository metadata
+        """
+        return self.backend_entity.repository_metadata or {}
+
+    @repository_metadata.setter
+    def repository_metadata(self, value):
+        """Set the repository metadata.
+
+        :param value: the new value to set
+        """
+        self.backend_entity.repository_metadata = value
 
     @property
     def computer(self):
