@@ -8,7 +8,6 @@
 # For further information please visit http://www.aiida.net               #
 ###########################################################################
 """Tests for the export and import routines"""
-
 import os
 import shutil
 import tempfile
@@ -18,7 +17,6 @@ import numpy as np
 from aiida import orm
 from aiida.backends.testbase import AiidaTestCase
 from aiida.common.folders import RepositoryFolder
-from aiida.orm.utils._repository import Repository
 from aiida.tools.importexport import import_data, export
 from aiida.tools.importexport.common import exceptions
 
@@ -184,7 +182,7 @@ class TestSpecificImport(AiidaTestCase):
         node.seal()
         node_uuid = node.uuid
 
-        node_repo = RepositoryFolder(section=Repository._section_name, uuid=node_uuid)  # pylint: disable=protected-access
+        node_repo = RepositoryFolder(section=Repository._section_name, uuid=node_uuid)  # pylint: disable=protected-access,undefined-variable
         self.assertTrue(
             node_repo.exists(), msg='Newly created and stored Node should have had an existing repository folder'
         )
@@ -223,7 +221,7 @@ class TestSpecificImport(AiidaTestCase):
         node.seal()
         node_uuid = node.uuid
 
-        node_repo = RepositoryFolder(section=Repository._section_name, uuid=node_uuid)  # pylint: disable=protected-access
+        node_repo = RepositoryFolder(section=Repository._section_name, uuid=node_uuid)  # pylint: disable=protected-access,undefined-variable
         self.assertTrue(
             node_repo.exists(), msg='Newly created and stored Node should have had an existing repository folder'
         )
@@ -271,7 +269,7 @@ class TestSpecificImport(AiidaTestCase):
         node = orm.Dict().store()
         node_uuid = node.uuid
 
-        node_repo = RepositoryFolder(section=Repository._section_name, uuid=node_uuid)  # pylint: disable=protected-access
+        node_repo = RepositoryFolder(section=Repository._section_name, uuid=node_uuid)  # pylint: disable=protected-access,undefined-variable
         self.assertTrue(
             node_repo.exists(), msg='Newly created and stored Node should have had an existing repository folder'
         )

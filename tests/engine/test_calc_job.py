@@ -11,6 +11,7 @@
 """Test for the `CalcJob` process sub class."""
 from copy import deepcopy
 from functools import partial
+import io
 import os
 from unittest.mock import patch
 
@@ -444,7 +445,7 @@ def test_parse_not_implemented(generate_process):
     """
     process = generate_process()
 
-    retrieved = orm.FolderData().store()
+    retrieved = orm.FolderData()
     retrieved.add_incoming(process.node, link_label='retrieved', link_type=LinkType.CREATE)
 
     process.node.set_attribute('detailed_job_info', {})
@@ -452,11 +453,9 @@ def test_parse_not_implemented(generate_process):
     filename_stderr = process.node.get_option('scheduler_stderr')
     filename_stdout = process.node.get_option('scheduler_stdout')
 
-    with retrieved.open(filename_stderr, 'w') as handle:
-        handle.write('\n')
-
-    with retrieved.open(filename_stdout, 'w') as handle:
-        handle.write('\n')
+    retrieved.put_object_from_filelike(io.BytesIO(b'\n'), filename_stderr)
+    retrieved.put_object_from_filelike(io.BytesIO(b'\n'), filename_stdout)
+    retrieved.store()
 
     process.parse()
 
@@ -479,7 +478,7 @@ def test_parse_scheduler_excepted(generate_process, monkeypatch):
 
     process = generate_process()
 
-    retrieved = orm.FolderData().store()
+    retrieved = orm.FolderData()
     retrieved.add_incoming(process.node, link_label='retrieved', link_type=LinkType.CREATE)
 
     process.node.set_attribute('detailed_job_info', {})
@@ -487,11 +486,9 @@ def test_parse_scheduler_excepted(generate_process, monkeypatch):
     filename_stderr = process.node.get_option('scheduler_stderr')
     filename_stdout = process.node.get_option('scheduler_stdout')
 
-    with retrieved.open(filename_stderr, 'w') as handle:
-        handle.write('\n')
-
-    with retrieved.open(filename_stdout, 'w') as handle:
-        handle.write('\n')
+    retrieved.put_object_from_filelike(io.BytesIO(b'\n'), filename_stderr)
+    retrieved.put_object_from_filelike(io.BytesIO(b'\n'), filename_stdout)
+    retrieved.store()
 
     msg = 'crash'
 

@@ -54,7 +54,7 @@ def delete_nodes(
     """
     # pylint: disable=too-many-arguments,too-many-branches,too-many-locals,too-many-statements
     from aiida.backends.utils import delete_nodes_and_connections
-    from aiida.orm import Node, QueryBuilder, load_node
+    from aiida.orm import Node, QueryBuilder
     from aiida.tools.graph.graph_traversers import get_nodes_delete
 
     def _missing_callback(_pks: Iterable[int]):
@@ -104,21 +104,9 @@ def delete_nodes(
             echo.echo('Exiting without deleting')
             return
 
-    # Recover the list of folders to delete before actually deleting the nodes. I will delete the folders only later,
-    # so that if there is a problem during the deletion of the nodes in the DB, I don't delete the folders
-    repositories = [load_node(pk)._repository for pk in pks_set_to_delete]  # pylint: disable=protected-access
-
     if verbosity > 0:
         echo.echo('Starting node deletion...')
     delete_nodes_and_connections(pks_set_to_delete)
-
-    if verbosity > 0:
-        echo.echo('Nodes deleted from database, deleting files from the repository now...')
-
-    # If we are here, we managed to delete the entries from the DB.
-    # I can now delete the folders
-    for repository in repositories:
-        repository.erase(force=True)
 
     if verbosity > 0:
         echo.echo('Deletion completed.')

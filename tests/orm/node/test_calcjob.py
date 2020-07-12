@@ -8,8 +8,7 @@
 # For further information please visit http://www.aiida.net               #
 ###########################################################################
 """Tests for the `CalcJobNode` node sub class."""
-
-import tempfile
+import io
 
 from aiida.backends.testbase import AiidaTestCase
 from aiida.common import LinkType, CalcJobState
@@ -58,11 +57,8 @@ class TestCalcJobNode(AiidaTestCase):
         self.assertEqual(node.get_scheduler_stdout(), None)
 
         # Add the file to the retrieved folder
-        with tempfile.NamedTemporaryFile(mode='w+') as handle:
-            handle.write(stdout)
-            handle.flush()
-            handle.seek(0)
-            retrieved.put_object_from_filelike(handle, option_value, force=True)
+        retrieved.put_object_from_filelike(io.StringIO(stdout), option_value, force=True)
+        retrieved.repository_metadata = retrieved.repository_serialize()
         self.assertEqual(node.get_scheduler_stdout(), stdout)
 
     def test_get_scheduler_stderr(self):
@@ -89,9 +85,6 @@ class TestCalcJobNode(AiidaTestCase):
         self.assertEqual(node.get_scheduler_stderr(), None)
 
         # Add the file to the retrieved folder
-        with tempfile.NamedTemporaryFile(mode='w+') as handle:
-            handle.write(stderr)
-            handle.flush()
-            handle.seek(0)
-            retrieved.put_object_from_filelike(handle, option_value, force=True)
+        retrieved.put_object_from_filelike(io.StringIO(stderr), option_value, force=True)
+        retrieved.repository_metadata = retrieved.repository_serialize()
         self.assertEqual(node.get_scheduler_stderr(), stderr)

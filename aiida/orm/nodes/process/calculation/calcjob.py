@@ -8,7 +8,6 @@
 # For further information please visit http://www.aiida.net               #
 ###########################################################################
 """Module with `Node` sub class for calculation job processes."""
-
 import warnings
 
 from aiida.common import exceptions
@@ -143,22 +142,6 @@ class CalcJobNode(CalculationNode):
         builder.metadata.options = self.get_options()
 
         return builder
-
-    @property
-    def _raw_input_folder(self):
-        """
-        Get the input folder object.
-
-        :return: the input folder object.
-        :raise: NotExistent: if the raw folder hasn't been created yet
-        """
-        from aiida.common.exceptions import NotExistent
-
-        return_folder = self._repository._get_base_folder()  # pylint: disable=protected-access
-        if return_folder.exists():
-            return return_folder
-
-        raise NotExistent('the `_raw_input_folder` has not yet been created')
 
     def get_option(self, name):
         """

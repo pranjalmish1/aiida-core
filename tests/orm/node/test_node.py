@@ -9,7 +9,6 @@
 ###########################################################################
 # pylint: disable=too-many-public-methods
 """Tests for the Node ORM class."""
-import io
 import os
 import tempfile
 
@@ -31,7 +30,7 @@ class TestNode(AiidaTestCase):
     def test_repository_garbage_collection(self):
         """Verify that the repository sandbox folder is cleaned after the node instance is garbage collected."""
         node = Data()
-        dirpath = node._repository._get_temp_folder().abspath  # pylint: disable=protected-access
+        dirpath = node._repository.backend.sandbox.abspath  # pylint: disable=protected-access
 
         self.assertTrue(os.path.isdir(dirpath))
         del node
@@ -53,6 +52,7 @@ class TestNode(AiidaTestCase):
         node = Data()
         assert node.repository_metadata == {}
 
+        # Even after storing the metadata should be empty, since it contains no files
         node.store()
         assert node.repository_metadata == {}
 
@@ -62,7 +62,7 @@ class TestNode(AiidaTestCase):
         assert node.repository_metadata == repository_metadata
 
         node.store()
-        assert node.repository_metadata == repository_metadata
+        assert node.repository_metadata != repository_metadata
 
 
 class TestNodeAttributesExtras(AiidaTestCase):
@@ -860,20 +860,3 @@ def test_store_from_cache():
     assert clone.is_stored
     assert clone.get_cache_source() == data.uuid
     assert data.get_hash() == clone.get_hash()
-
-
-@pytest.mark.usefixtures('clear_database_before_test')
-def test_open_wrapper():
-    """Test the wrapper around the return value of ``Node.open``.
-
-    This should be remove in v2.0.0 because the wrapper should be removed.
-    """
-    filename = 'test'
-    node = Node()
-    node.put_object_from_filelike(io.StringIO('test'), filename)
-
-    # Both `iter` and `next` should not raise
-    next(node.open(filename))
-    iter(node.open(filename))
-    node.open(filename).__next__()
-    node.open(filename).__iter__()

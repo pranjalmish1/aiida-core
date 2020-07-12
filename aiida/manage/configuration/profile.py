@@ -11,6 +11,8 @@
 import collections
 import os
 
+from disk_objectstore import Container
+
 from aiida.common import exceptions
 from .settings import DAEMON_DIR, DAEMON_LOG_DIR
 
@@ -107,6 +109,19 @@ class Profile:  # pylint: disable=too-many-public-methods
 
         # Currently, whether a profile is a test profile is solely determined by its name starting with 'test_'
         self._test_profile = bool(self.name.startswith('test_'))
+
+    def get_repository_container(self) -> Container:
+        """Return the container of the profile's file repository.
+
+        :return: the profile's file repository container.
+        """
+        filepath = os.path.join(self.repository_path, 'container')
+        container = Container(filepath)
+
+        if not container.is_initialised:
+            container.init_container()
+
+        return container
 
     @property
     def uuid(self):
