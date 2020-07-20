@@ -20,8 +20,6 @@ from aiida.tools.importexport import EXPORT_VERSION
 
 from tests.utils.archives import get_archive_file
 
-pytest.skip('the current export/import mechanism does not work with the new repository.', allow_module_level=True)
-
 
 class TestVerdiImport(AiidaTestCase):
     """Tests for `verdi import`."""

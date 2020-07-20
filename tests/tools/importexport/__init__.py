@@ -8,6 +8,3 @@
 # For further information please visit http://www.aiida.net               #
 ###########################################################################
 """Tests for the :mod:`aiida.tools.importexport` module."""
-import pytest
-
-pytest.skip('the current export/import mechanism does not work with the new repository.', allow_module_level=True)
