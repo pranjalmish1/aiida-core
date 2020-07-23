@@ -57,8 +57,8 @@ class TestCalcJobNode(AiidaTestCase):
         self.assertEqual(node.get_scheduler_stdout(), None)
 
         # Add the file to the retrieved folder
-        retrieved.put_object_from_filelike(io.StringIO(stdout), option_value, force=True)
-        retrieved.repository_metadata = retrieved.repository_serialize()
+        retrieved._repository.put_object_from_filelike(io.BytesIO(stdout.encode('utf-8')), option_value)  # pylint: disable=protected-access
+        retrieved._update_repository_metadata()  # pylint: disable=protected-access
         self.assertEqual(node.get_scheduler_stdout(), stdout)
 
     def test_get_scheduler_stderr(self):
@@ -85,6 +85,6 @@ class TestCalcJobNode(AiidaTestCase):
         self.assertEqual(node.get_scheduler_stderr(), None)
 
         # Add the file to the retrieved folder
-        retrieved.put_object_from_filelike(io.StringIO(stderr), option_value, force=True)
-        retrieved.repository_metadata = retrieved.repository_serialize()
+        retrieved._repository.put_object_from_filelike(io.BytesIO(stderr.encode('utf-8')), option_value)  # pylint: disable=protected-access
+        retrieved._update_repository_metadata()  # pylint: disable=protected-access
         self.assertEqual(node.get_scheduler_stderr(), stderr)
