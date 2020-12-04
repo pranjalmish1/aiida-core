@@ -21,7 +21,7 @@ import numpy
 from disk_objectstore import Container
 from disk_objectstore.utils import LazyOpener
 
-from aiida.common import json
+from aiida.common import exceptions, json
 from aiida.repository.backend import AbstractRepositoryBackend
 from aiida.repository.common import File, FileType
 from aiida.repository.repository import Repository
@@ -118,6 +118,8 @@ def migrate_legacy_repository(node_count, shard=None):
     have to be adapted and the significant parts of the implementation will have to be copy pasted here.
 
     :return: mapping of node UUIDs onto the new repository metadata.
+    :raises `~aiida.common.exceptions.DatabaseMigrationError`: in case the container of the migrated repository already
+        exists or if the repository does not exist but the database contains at least one node.
     """
     # pylint: disable=too-many-locals
     from aiida.manage.configuration import get_profile
@@ -137,7 +139,7 @@ def migrate_legacy_repository(node_count, shard=None):
         if profile.is_test_profile or node_count == 0:
             return None, None
 
-        raise RuntimeError(
+        raise exceptions.DatabaseMigrationError(
             f'the file repository `{basepath}` does not exist but the database is not empty, it contains {node_count} '
             'nodes. Aborting the migration.'
         )
@@ -146,7 +148,7 @@ def migrate_legacy_repository(node_count, shard=None):
     # already been initialized for the first shard.
     if shard is None or shard == '00':
         if container.is_initialised and not profile.is_test_profile:
-            raise RuntimeError(
+            raise exceptions.DatabaseMigrationError(
                 f'the container {filepath} already exists. If you ran this migration before and it failed simply '
                 'delete this directory and restart the migration.'
             )
@@ -204,6 +206,8 @@ def get_node_repository_dirpaths(basepath, shard=None):
     :param shard: optional shard to define which first shard level to check. If `None`, all shard levels are checked.
     :return: dictionary of node UUID onto absolute filepath and list of node repo missing one of the two known sub
         folders, ``path`` or ``raw_input``, which is unexpected.
+    :raises `~aiida.common.exceptions.DatabaseMigrationError`: if the repository contains node folders that contain both
+        the `path` and `raw_input` subdirectories, which should never happen.
     """
     # pylint: disable=too-many-branches
     from aiida.manage.configuration import get_profile
@@ -257,7 +261,7 @@ def get_node_repository_dirpaths(basepath, shard=None):
                     mapping[uuid] = path
 
     if contains_both and not profile.is_test_profile:
-        raise RuntimeError(
+        raise exceptions.DatabaseMigrationError(
             f'The file repository `{basepath}` contained node repository folders that contained both the `path` as well'
             ' as the `raw_input` subfolders. This should not have happened, as the latter is used for calculation job '
             'nodes, and the former for all other nodes. The migration will be aborted and the paths of the offending '
@@ -440,7 +444,6 @@ def verify_uuid_uniqueness(table):
 
     :raises: IntegrityError if table contains rows with duplicate UUIDS.
     """
-    from aiida.common import exceptions
     duplicates = get_duplicate_uuids(table=table)
 
     if duplicates:
